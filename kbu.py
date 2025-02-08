@@ -50,12 +50,25 @@ def save_bio_to_file(bios):
     with open(BIO_DATA_FILE, "w") as file:
         json.dump(bios, file, indent=4)
 
+# Utility function to read messages from file (ensure it's a list)
 def read_messages_from_file():
     try:
         with open(MESSAGE_DATA_FILE, "r") as file:
-            return json.load(file)
+            data = json.load(file)
+            if isinstance(data, list):
+                return data
+            else:
+                return []  # Return an empty list if data is not a list
     except (json.JSONDecodeError, FileNotFoundError):
         return []
+
+# Utility function to save messages to file (ensure it's written as a list)
+def save_messages_to_file(messages):
+    if not isinstance(messages, list):
+        messages = []  # Ensure we are saving a list
+    with open(MESSAGE_DATA_FILE, "w") as file:
+        json.dump(messages, file, indent=4)
+
 
 def save_messages_to_file(messages):
     with open(MESSAGE_DATA_FILE, "w") as file:
@@ -203,19 +216,30 @@ def chat():
         return redirect('/login')  # Redirect to login if not logged in
 
     username = session.get('username', 'Guest')
+    users = read_users_from_file()
     messages = read_messages_from_file()
+
+    # Retrieve the user data of the logged-in user
+    user_data = users.get(session['member_no'])
+    profile_picture = user_data.get("profile_picture", url_for('static', filename="uploads/default-avatar.jpg"))
 
     if request.method == "POST":
         message_text = request.form.get("message", "").strip()
         if message_text:
             timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
-            message_data = {"username": username, "message": message_text, "timestamp": timestamp}
+            message_data = {
+                "member_no": session['member_no'],
+                "username": username,
+                "message": message_text,
+                "timestamp": timestamp,
+                "profile_picture": profile_picture
+            }
             messages.append(message_data)
             save_messages_to_file(messages)
 
         return redirect('/chat')  # Redirect to avoid form resubmission
 
-    return render_template('chat.html', username=username, messages=messages)
+    return render_template('chat.html', username=username, messages=messages, profile_picture=profile_picture)
 
 if __name__ == "__main__":
     app.run(debug=True)
