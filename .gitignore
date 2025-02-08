@@ -1,1 +1,4 @@
 .env
+data/
+static/uploads/
+static/backuploads/
