@@ -3,138 +3,236 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Chat - KBU Christian Community</title>
+    <title>KBU Christian Community</title>
     <style>
+        /* General body styles */
         body {
             font-family: 'Poppins', sans-serif;
-            background: linear-gradient(135deg, #ff7e5f, #feb47b);
-            color: #ffffff;
+            background: url('{{ url_for('static', filename='imagekbu.png') }}') no-repeat center center fixed;
+            background-size: cover;
             margin: 0;
             padding: 0;
+            color: #ffffff;
+            overflow-x: hidden;
         }
 
         header {
-            background: rgba(0, 0, 0, 0.2);
-            padding: 20px;
+            background: rgba(0, 0, 0, 0.2); /* Light transparent black */
+            padding: 30px;
             text-align: center;
-            border-bottom: 2px solid rgba(255, 165, 0, 0.5);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            border-bottom: 3px solid rgba(255, 165, 0, 0.5); /* Orange border */
+            margin-bottom: 40px;
+            border-radius: 10px;
         }
 
         h1 {
-            font-size: 2.5rem;
+            font-size: 4.5rem;
             margin: 0;
+            text-transform: uppercase;
+            letter-spacing: 7px;
+            color: #ffb347; /* Bright orange */
+            font-weight: bold;
+            text-shadow: 5px 5px 15px rgba(0, 0, 0, 0.8);
         }
 
-        .chat-container {
-            max-width: 800px;
+        .content {
+            padding: 30px;
+            text-align: center;
+            background: rgba(255, 255, 255, 0.1); /* Light transparent white */
+            border-radius: 20px;
             margin: 20px auto;
-            background: rgba(0, 0, 0, 0.3);
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.4);
-        }
-
-        .chat-box {
-            height: 400px;
-            overflow-y: scroll;
+            max-width: 90%;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.3);
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
+        }
+
+        .user-info {
+            background: rgba(0, 0, 0, 0.3); /* Light transparent black */
+            border-radius: 20px;
             padding: 15px;
-        }
-
-        .chat-message {
-            margin-bottom: 10px;
-        }
-
-        .chat-message span {
-            font-weight: bold;
-            color: #ffdd57;
-        }
-
-        .chat-input-container {
-            display: flex;
-            margin-top: 20px;
-        }
-
-        .chat-input {
-            flex-grow: 1;
-            padding: 10px;
-            border: none;
-            border-radius: 5px;
-        }
-
-        .chat-send-btn {
-            padding: 10px 20px;
-            margin-left: 10px;
-            border: none;
-            border-radius: 5px;
-            background: #ff7e5f;
+            margin-bottom: 20px;
+            font-size: 1.2rem;
             color: #ffffff;
-            cursor: pointer;
-            font-weight: bold;
-            transition: background 0.3s ease;
+            text-shadow: 1px 1px 5px rgba(0, 0, 0, 0.7);
         }
 
-        .chat-send-btn:hover {
-            background: #feb47b;
+        .welcome {
+            font-size: 2.5rem;  /* Smaller font size */
+            font-weight: 700;
+            color: #ffb347; /* Bright yellow */
+            margin-bottom: 10px;
+            text-shadow: 3px 3px 15px rgba(0, 0, 0, 0.6);
+        }
+
+        .quote {
+            font-size: 1.5rem;
+            color: #dcdcdc; /* Light gray */
+            margin-top: 10px;
+            font-style: italic;
+            text-align: center;
+            margin-bottom: 40px;
+            font-weight: bold;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 30px;
+            margin-top: 40px;
+            max-width: 90%;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .button {
+            border: none;
+            padding: 30px 40px; /* Increased padding */
+            font-size: 2.5rem; /* Bigger font size */
+            color: #ffffff;
+            border-radius: 20px; /* Bigger border radius for a rounder button */
+            cursor: pointer;
+            transition: all 0.4s ease;
+            background: linear-gradient(135deg, #ff7e5f, #feb47b); /* Gradient orange-pink */
+            box-shadow: 0 8px 20px rgba(255, 126, 95, 0.6);
+            font-weight: bold;
+            text-shadow: 2px 2px 10px rgba(0, 0, 0, 0.5);
+            animation: fadeInUp 1s ease-in-out;
+            min-width: 250px; /* Minimum width for consistency */
+        }
+
+        .button:hover {
+            background: linear-gradient(135deg, #feb47b, #ff7e5f); /* Reverse gradient */
+            transform: scale(1.1);
+            box-shadow: 0 10px 25px rgba(255, 126, 95, 0.8);
+        }
+
+        .button:active {
+            transform: scale(0.95);
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.3); /* Light transparent black */
+            border-top: 2px solid rgba(255, 165, 0, 0.5);
+            color: #ffffff;
+        }
+
+        footer a {
+            color: #ffdd57; /* Bright yellow */
+            text-decoration: none;
+            font-weight: 700;
+        }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+        /* Jesus Cross styles */
+        .cross {
+            position: fixed;
+            width: 150px;
+            height: auto;
+            opacity: 0.8;
+            transition: transform 0.3s ease, opacity 0.3s ease;
+            cursor: pointer;
+        }
+
+        .cross:hover {
+            transform: scale(1.2);
+            opacity: 1;
+        }
+
+        /* Top-right cross */
+        .cross-top-right {
+            top: 20px;
+            right: 20px;
+        }
+
+        /* Bottom-right cross */
+        .cross-bottom-right {
+            bottom: 20px;
+            right: 20px;
+        }
+
+        /* Jesus loves you message styles */
+        .jesus-love-message {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 4rem;
+            color: #dcdcdc; /* Bright Coral color */
+            font-weight: bold;
+            text-shadow: 0px 0px 20px rgba(255, 99, 71, 0.8), 0px 0px 30px rgba(255, 99, 71, 0.6);
+            text-align: center;
+            padding: 40px;
+            background: linear-gradient(135deg, rgba(255, 99, 71, 0.9), rgba(255, 165, 0, 0.9)); /* Gradient color */
+            border-radius: 25px;
+            box-shadow: 0px 0px 25px rgba(255, 99, 71, 0.6);
+            animation: fadeIn 1s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.8); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 <body>
     <header>
-        <h1>Chat Room</h1>
+        <h1>KBU Christian Community</h1>
     </header>
-    <div class="chat-container">
-        <div class="chat-box" id="chat-box">
-            <!-- Chat messages will appear here -->
+    <div class="content">
+        <div class="user-info">
+            <p class="welcome">Welcome <span>{{ username }}</span>!</p>
+            <p class="quote">"Let all that you do be done in love." – 1 Corinthians 16:14</p>
         </div>
-        <div class="chat-input-container">
-            <input type="text" id="chat-input" class="chat-input" placeholder="Type your message here...">
-            <button id="chat-send-btn" class="chat-send-btn">Send</button>
+
+        <div class="buttons">
+            <button class="button" onclick="window.location.href='/acts-of-christ'">Acts of Christ</button>
+            <button class="button" onclick="window.location.href='/worship'">Worship</button>
+            <button class="button" onclick="window.location.href='/bible-study'">Bible Study</button>
+            <button class="button" onclick="window.location.href='/kbu-website'">KBU Website</button>
+            <button class="button" onclick="window.location.href='/myprofile'">My Profile</button>
+            <!-- Changed Explorer to Message Box -->
+            <button class="button" onclick="window.location.href='/chatbot'">Message Box</button>
         </div>
     </div>
 
+    <!-- Jesus Crosses -->
+    <img src="{{ url_for('static', filename='cross.png') }}" alt="Jesus Cross" class="cross cross-top-right" onclick="showJesusMessage('{{ username }}')">
+    <img src="{{ url_for('static', filename='cross.png') }}" alt="Jesus Cross" class="cross cross-bottom-right" onclick="showJesusMessage('{{ username }}')">
+
+    <!-- Jesus loves you message -->
+    <div class="jesus-love-message" id="jesus-love-message">
+        Jesus loves you💖<span id="username-message">{{ username }}</span>!
+    </div>
+
+
+    <footer>
+        <p><a href="/logout">Logout</a></p>
+    </footer>
+
     <script>
-        const chatBox = document.getElementById('chat-box');
-        const chatInput = document.getElementById('chat-input');
-        const chatSendBtn = document.getElementById('chat-send-btn');
+        function showJesusMessage(username) {
+            var message = document.getElementById('jesus-love-message');
+            var usernameMessage = document.getElementById('username-message');
+            usernameMessage.innerText = username; // Display username in the message
+            message.style.display = 'block';
 
-        // Example message data
-        const messages = [
-            { username: "Admin", text: "Welcome to the chat room!" },
-        ];
-
-        // Function to display messages
-        function displayMessages() {
-            chatBox.innerHTML = '';
-            messages.forEach(msg => {
-                const messageElement = document.createElement('div');
-                messageElement.classList.add('chat-message');
-                messageElement.innerHTML = `<span>${msg.username}:</span> ${msg.text}`;
-                chatBox.appendChild(messageElement);
-            });
+            setTimeout(function() {
+                message.style.display = 'none';
+            }, 3000); // Message disappears after 3 seconds
         }
-
-        // Function to send a message
-        function sendMessage() {
-            const text = chatInput.value.trim();
-            if (text) {
-                messages.push({ username: "{{ username }}", text });
-                chatInput.value = '';
-                displayMessages();
-                chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll
-            }
-        }
-
-        // Event listeners
-        chatSendBtn.addEventListener('click', sendMessage);
-        chatInput.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        // Initial message display
-        displayMessages();
     </script>
 </body>
 </html>

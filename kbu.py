@@ -13,23 +13,19 @@ app.secret_key = os.getenv("PaulKey")  # Replace with a strong secret key for se
 # Paths for the JSON files
 USER_DATA_FILE = "data/users.json"
 BIO_DATA_FILE = "data/bio.json"
+MESSAGE_DATA_FILE = "data/messages.json"
 UPLOAD_FOLDER = 'static/uploads'
 BACKGROUND_UPLOAD_FOLDER = 'static/backuploads'
 
 # Ensure necessary folders and files exist
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+for folder in [UPLOAD_FOLDER, BACKGROUND_UPLOAD_FOLDER]:
+    if not os.path.exists(folder):
+        os.makedirs(folder)
 
-if not os.path.exists(BACKGROUND_UPLOAD_FOLDER):
-    os.makedirs(BACKGROUND_UPLOAD_FOLDER)
-
-if not os.path.exists(USER_DATA_FILE) or os.stat(USER_DATA_FILE).st_size == 0:
-    with open(USER_DATA_FILE, "w") as file:
-        json.dump({}, file, indent=4)
-
-if not os.path.exists(BIO_DATA_FILE) or os.stat(BIO_DATA_FILE).st_size == 0:
-    with open(BIO_DATA_FILE, "w") as file:
-        json.dump({}, file, indent=4)
+for file_path in [USER_DATA_FILE, BIO_DATA_FILE, MESSAGE_DATA_FILE]:
+    if not os.path.exists(file_path) or os.stat(file_path).st_size == 0:
+        with open(file_path, "w") as file:
+            json.dump([], file, indent=4) if "messages" in file_path else json.dump({}, file, indent=4)
 
 # Utility functions to read/write JSON files
 def read_users_from_file():
@@ -37,7 +33,6 @@ def read_users_from_file():
         with open(USER_DATA_FILE, "r") as file:
             return json.load(file)
     except (json.JSONDecodeError, FileNotFoundError):
-        print("Error: The user data file is malformed or missing. Initializing empty data.")
         return {}
 
 def save_users_to_file(users):
@@ -49,12 +44,22 @@ def read_bio_from_file():
         with open(BIO_DATA_FILE, "r") as file:
             return json.load(file)
     except (json.JSONDecodeError, FileNotFoundError):
-        print("Error: The bio data file is malformed or missing. Initializing empty data.")
         return {}
 
 def save_bio_to_file(bios):
     with open(BIO_DATA_FILE, "w") as file:
         json.dump(bios, file, indent=4)
+
+def read_messages_from_file():
+    try:
+        with open(MESSAGE_DATA_FILE, "r") as file:
+            return json.load(file)
+    except (json.JSONDecodeError, FileNotFoundError):
+        return []
+
+def save_messages_to_file(messages):
+    with open(MESSAGE_DATA_FILE, "w") as file:
+        json.dump(messages, file, indent=4)
 
 def generate_user_id(users):
     if users:
@@ -136,7 +141,7 @@ def profile(user_id):
     user_data = users[user_id]
 
     if request.method == "POST":
-        # Handling Profile Picture Upload
+        # Profile Picture Upload
         if "profile_picture" in request.files:
             profile_picture = request.files["profile_picture"]
             if profile_picture:
@@ -145,7 +150,7 @@ def profile(user_id):
                 users[user_id] = user_data
                 save_users_to_file(users)
 
-        # Handling Background Picture Upload
+        # Background Picture Upload
         if "background_picture" in request.files:
             background_picture = request.files["background_picture"]
             if background_picture:
@@ -154,7 +159,7 @@ def profile(user_id):
                 users[user_id] = user_data
                 save_users_to_file(users)
 
-        # Handling Bio
+        # Bio Update
         bio = request.form.get("bio", "").strip()
         if bio:
             bios[user_id] = bio
@@ -162,7 +167,7 @@ def profile(user_id):
 
         return redirect(f'/profile/{user_id}')
 
-    # Default profile picture and background if not set
+    # Default profile picture and background
     profile_picture = user_data.get("profile_picture", url_for('static', filename="uploads/default-avatar.jpg"))
     profile_background = user_data.get("profile_background", "profileback.jpg")
     user_bio = bios.get(user_id, "")
@@ -191,6 +196,26 @@ def myprofile():
 def logout():
     session.clear()
     return redirect('/login')
+
+@app.route('/chat', methods=["GET", "POST"])
+def chat():
+    if 'member_no' not in session:
+        return redirect('/login')  # Redirect to login if not logged in
+
+    username = session.get('username', 'Guest')
+    messages = read_messages_from_file()
+
+    if request.method == "POST":
+        message_text = request.form.get("message", "").strip()
+        if message_text:
+            timestamp = time.strftime("%Y-%m-%d %H:%M:%S")
+            message_data = {"username": username, "message": message_text, "timestamp": timestamp}
+            messages.append(message_data)
+            save_messages_to_file(messages)
+
+        return redirect('/chat')  # Redirect to avoid form resubmission
+
+    return render_template('chat.html', username=username, messages=messages)
 
 if __name__ == "__main__":
     app.run(debug=True)
