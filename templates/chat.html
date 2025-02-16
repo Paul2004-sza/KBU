@@ -74,30 +74,16 @@
             color: #333;
         }
 
-        .message-header {
-            font-size: 1rem;
-            font-weight: 600;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .message-avatar {
-            width: 35px;
-            height: 35px;
-            border-radius: 50%;
-            margin-right: 10px;
-            object-fit: cover;
-        }
-
         .message-form {
             display: flex;
             padding: 12px;
             border-top: 1px solid #ddd;
             background-color: #fff;
             box-sizing: border-box;
+            align-items: center;
         }
 
-        .message-form input {
+        .message-form input[type="text"] {
             flex: 1;
             padding: 12px;
             font-size: 1rem;
@@ -110,10 +96,11 @@
             background-color: #1E88E5;
             color: white;
             border: none;
-            padding: 12px 24px;
+            padding: 12px 18px;
             border-radius: 30px;
             cursor: pointer;
             font-size: 1rem;
+            margin-left: 5px;
         }
 
         .message-form button:hover {
@@ -124,28 +111,11 @@
             background-color: #1565C0;
         }
 
-        .no-message {
+        #filePreview {
             text-align: center;
-            font-size: 1.2rem;
-            color: #888;
-        }
-
-        .user-info {
-            display: flex;
-            align-items: center;
-            margin-bottom: 20px;
-        }
-
-        .user-info img {
-            width: 50px;
-            height: 50px;
-            border-radius: 50%;
-            margin-right: 10px;
-        }
-
-        .user-info .username {
-            font-size: 1.2rem;
-            font-weight: 600;
+            font-size: 0.9rem;
+            color: #555;
+            margin-top: 5px;
         }
     </style>
 </head>
@@ -158,9 +128,16 @@
                 {% for message in messages %}
                     <div class="message {% if message.username == username %}sent{% else %}received{% endif %}">
                         <div class="message-content">
-                            <img src="{{ message.profile_picture }}" alt="Avatar" class="message-avatar">
-                            <div class="message-header">{{ message.username }}</div>
-                            <span>{{ message.message }}</span>
+                            <span>{{ message.username }}: {{ message.message }}</span>
+                            {% if message.image %}
+                                <img src="{{ url_for('static', filename='messageuploads/' + message.image) }}" alt="Image" style="max-width: 100%; border-radius: 10px; margin-top: 10px;">
+                            {% endif %}
+                            {% if message.video %}
+                                <video controls style="max-width: 100%; border-radius: 10px; margin-top: 10px;">
+                                    <source src="{{ url_for('static', filename='messageuploads/' + message.video) }}" type="video/mp4">
+                                    Your browser does not support the video tag.
+                                </video>
+                            {% endif %}
                         </div>
                     </div>
                 {% endfor %}
@@ -168,10 +145,28 @@
                 <div class="no-message">Start a conversation by typing a message!</div>
             {% endif %}
         </div>
-        <form class="message-form" method="POST">
+
+        <form class="message-form" method="POST" enctype="multipart/form-data">
             <input type="text" name="message" placeholder="Type your message..." required>
+            <input type="file" id="imageInput" name="image" accept="image/*" style="display: none;">
+            <input type="file" id="videoInput" name="video" accept="video/*" style="display: none;">
+
+            <button type="button" onclick="document.getElementById('imageInput').click()">📷 Image</button>
+            <button type="button" onclick="document.getElementById('videoInput').click()">🎥 Video</button>
             <button type="submit">Send</button>
         </form>
+
+        <p id="filePreview"></p>
     </div>
+
+    <script>
+        document.getElementById('imageInput').addEventListener('change', function() {
+            document.getElementById('filePreview').textContent = this.files.length ? `Selected Image: ${this.files[0].name}` : '';
+        });
+
+        document.getElementById('videoInput').addEventListener('change', function() {
+            document.getElementById('filePreview').textContent = this.files.length ? `Selected Video: ${this.files[0].name}` : '';
+        });
+    </script>
 </body>
 </html>

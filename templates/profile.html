@@ -29,7 +29,7 @@
             margin-top: 100px;
             text-align: center;
             animation: fadeIn 1.5s ease-in;
-            background-image: url('{{ url_for("static", filename="backuploads/" + (user_data["profile_background"] if "profile_background" in user_data else "profileback.jpg")) }}');
+            background-image: url('{{ url_for("static", filename="backuploads/" + (user_data["profile_background"] if user_data["profile_background"] else "profileback.jpg")) }}');
             background-size: cover;
             background-position: center;
             padding: 50px 0;
@@ -136,7 +136,7 @@
 
         <!-- Profile Picture -->
         <img
-            src="{{ user_data['profile_picture'] if 'profile_picture' in user_data else url_for('static', filename='uploads/default-avatar.jpg') }}"
+            src="{{ user_data['profile_picture'] if user_data['profile_picture'] else url_for('static', filename='uploads/default-avatar.jpg') }}"
             alt="Profile Picture"
             class="profile-picture"
             data-bs-toggle="modal"
@@ -164,7 +164,7 @@
                     name="bio"
                     class="form-control mb-3"
                     rows="4"
-                    placeholder="Write a short bio...">{{ user_bio }}</textarea>
+                    placeholder="Write a short bio...">{{ user_data['bio'] if user_data['bio'] else '' }}</textarea>
             </div>
 
             <div class="btn-group">
@@ -179,7 +179,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="background: none; border: none; text-align: center;">
                 <img
-                    src="{{ user_data['profile_picture'] if 'profile_picture' in user_data else url_for('static', filename='uploads/default-avatar.jpg') }}"
+                    src="{{ user_data['profile_picture'] if user_data['profile_picture'] else url_for('static', filename='uploads/default-avatar.jpg') }}"
                     alt="Profile Picture"
                     class="img-fluid rounded"
                     style="max-height: 90vh;">
@@ -192,7 +192,7 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content" style="background: none; border: none; text-align: center;">
                 <img
-                    src="{{ user_data['profile_background'] if 'profile_background' in user_data else url_for('static', filename='backuploads/profileback.jpg') }}"
+                    src="{{ user_data['profile_background'] if user_data['profile_background'] else url_for('static', filename='backuploads/profileback.jpg') }}"
                     alt="Background Picture"
                     class="img-fluid rounded"
                     style="max-height: 90vh;">
